@@ -208,4 +208,6 @@ st.header(" Race Predictions & Analysis")
 
 # Top Metrics
 col2, col2, col3 = st.columns(3)
-col1.metric("Favorite", results.iloc[0])
+col1.metric("Favorite", results.iloc[0]["FullName"], f"{results.iloc[0]['Win_Probability_%']}% Win")
+col3.metric("2nd Favorite", results.iloc[1]["FullName"], f"{results.iloc[1]['Win_Probability_%']}% Win")
+
