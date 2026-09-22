@@ -19,10 +19,10 @@ standings_grid_2026 = pd.DataFrame([
     {"FullName": "Andrea Kimi Antonelli", "TeamName": "Mercedes", "GridPosition":1, "QualiPosition": 1},
     {"FullName": "George Russell", "TeamName": "Mercedes", "GridPosition": 2, "QualiPosition": 2},
     {"FullName": "Lewis Hamilton", "TeamName": "Ferrari", "GridPosition": 3, "QualiPosition": 3},
-    {"FullName": "Lando Norris", "TeamName": "Mclaren", "GridPosition": 4, "QualiPosition": 4},
+    {"FullName": "Lando Norris", "TeamName": "McLaren", "GridPosition": 4, "QualiPosition": 4},
     {"FullName": "Charles Leclerc", "TeamName": "Ferrari", "GridPosition": 5, "QualiPosition": 5},
     {"FullName": "Max Verstappen", "TeamName": "Red Bull Racing", "GridPosition": 6, "QualiPosition": 6},
-    {"FullName": "Oscar Piastri", "TeamName": "Mclaren","GridPosition": 7, "QualiPosition":7},
+    {"FullName": "Oscar Piastri", "TeamName": "McLaren","GridPosition": 7, "QualiPosition":7},
     {"FullName":"Issack Hadjar", "TeamName": "Red Bull Racing", "GridPosition": 8, "QualiPosition": 8},
     {"FullName":"Liam Lawson", "TeamName": "Racing Bulls", "GridPosition": 9, "QualiPosition": 9},
     {"FullName":"Pierre Gasly", "TeamName": "Alpine", "GridPosition": 10, "QualiPosition": 10},
@@ -30,7 +30,8 @@ standings_grid_2026 = pd.DataFrame([
     Season=2026, 
     EventName="Azerbaijan Grand Prix", 
     Round=df_2026["Round"].max() + 1 if not df_2026.empty else 17,
-    Position=None
+    Position=None,
+    DriverNumber=12
 )
 
 # Combine 2026 Historical races with upcoming baku entry
@@ -66,7 +67,7 @@ track_type_map = {
     'Japanese Grand Prix': 'Technical', 'Spanish Grand Prix': 'Technical',
     'Dutch Grand Prix': 'Technical', 'Qatar Grand Prix': 'Technical',
     'Bahrain Grand Prix': 'Power', 'São Paulo Grand Prix': 'Power',
-    'Canadian Grand Prix': 'Power', 'Mexico City': 'Power',
+    'Canadian Grand Prix': 'Power', 'Mexico City Grand Prix': 'Power',
     'Chinese Grand Prix': 'Power'
 }
 df_predict['TrackType'] = df_predict['EventName'].map(track_type_map).fillna('Technical')
@@ -101,15 +102,22 @@ model.fit(X_train, y_train)
 
 # Normalize Win Probabilities (sum to 100%)
 raw_win_probs = model.predict_proba(X_test)[:,1]
-win_probs_normalized = (raw_win_probs / raw_win_probs.sum()) * 100
+import numpy as np
+
+exp_probs = np.exp(raw_win_probs * 2)
+beta = 2.6
+exp_probs = np.exp(raw_win_probs * beta)
+win_probs_normalized = (exp_probs / exp_probs.sum()) * 100
 
 # Train Podium Model
 podium_model = XGBClassifier(n_estimators=100, learning_rate=0.05, random_state=42)
 podium_model.fit(X_train, y_train_podium)
 
 # Normalize podium probabilites (sum to 100%)
+beta_podium = 2.0
 raw_podium_probs = podium_model.predict_proba(X_test)[:,1]
-podium_probs_normalized = (raw_podium_probs / raw_podium_probs.sum()) * 300
+exp_podium = np.exp(raw_podium_probs * beta_podium)
+podium_probs_normalized = (raw_podium_probs / raw_podium_probs.sum() + 1e-9) * 300
 
 # Format and print outpu
 baku_results = df_predict[is_baku_2026].copy()
