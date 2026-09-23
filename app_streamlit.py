@@ -40,54 +40,54 @@ grid_data = [
         "DriverNumber": 12,
     },
     {
-        "FullName": "George Russell",
+        "FullName": "George Russel",
         "TeamName": "Mercedes",
         "GridPosition": 2,
         "QualiPosition": 2,
         "DriverNumber": 63,
-    }
+    },
     {
         "FullName": "Lewis Hamilton",
         "TeamName": "Ferrari",
         "GridPosition": 3,
         "QualiPosition": 3,
         "DriverNumber": 44,
-    }
+    },
     {
         "FullName": "Lando Norris",
         "TeamName": "McLaren",
         "GridPosition": 3,
         "QualiPosition": 3,
         "DriverNumber": 44,
-    }
+    },
     {
         "FullName": "Charles Leclerc",
         "TeamName": "Ferrari",
         "GridPosition": 4,
         "QualiPosition": 4,
         "DriverNumber": 16,
-    }
+    },
     {
         "FullName": "Max Verstappen",
         "TeamName": "Red Bull Racing",
         "GridPosition": 6,
         "QualiPosition": 6,
         "DriverNumber": 1,
-    }
+    },
     {
         "FullName": "Oscar Piastri",
         "TeamName": "McLaren",
         "GridPostion": 7,
         "QualiPosition": 7,
         "DriverNumber": 81,
-    }
+    },
     {
         "FullName": "Isack Hadjar",
         "TeamName": "McLaren",
         "GridPosition": 7,
         "QualiPosition": 7,
         "DriverNumber": 6,
-    }
+    },
     {
         "FullName": "Liam Lawson",
         "TeamName": "Racing Bulls",
@@ -207,7 +207,34 @@ results = results.sort_values(by="Win_Probability_%", ascending=False)
 st.header(" Race Predictions & Analysis")
 
 # Top Metrics
-col2, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 col1.metric("Favorite", results.iloc[0]["FullName"], f"{results.iloc[0]['Win_Probability_%']}% Win")
-col3.metric("2nd Favorite", results.iloc[1]["FullName"], f"{results.iloc[1]['Win_Probability_%']}% Win")
+col2.metric("2nd Favorite", results.iloc[1]["FullName"], f"{results.iloc[1]['Win_Probability_%']}% Win")
+col3.metric("3rd Favorite", results.iloc[2]["FullName"], f"{results/iloc[2]['Win_Probability_%']}% Win")
+
+st.markdown("---")
+
+# Layout Plots in 2 columns
+plot_col1, plot_col2 = st.columns(2)
+
+with plot_col1:
+    st.subheader("Grid Position vs Win Probability")
+    # Scatter Plot
+    fig_scatter = px.scatter(
+        results,
+        x="GridPosition",
+        y="Win_Probability_%",
+        color="TeamName",
+        hover_name="FullName",
+        size="Podium_Probability_%",
+        labels={"GridPosition": "Starting Grid Position", "Win_Probability_%": "Win Chance (%)"},
+        title = "Impact of Starting Position on Win Chance"
+    )
+    st.plotpy_chart(fig_scatter, use_container_width=True)
+
+with plot_col2:
+    st.subheader("Distribution of Win Probabilities")
+    # Histogram
+    fig_hist = px.
+
 
