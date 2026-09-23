@@ -4,15 +4,15 @@ import streamlit as st
 import plotly.express as px
 from xgboost import XGBClassifier
 
-# Set page config for a clean dashboard look
+# Set page configuration for a clean dashboard look
 st.set_page_config(
     page_title="2026 F1 Race Predictor", page_icon="🏎️", layout="wide"
 )
 
-st.title("🏎️ 2026 F1 Race Winner & Podium Predictior")
+st.title("🏎️ 2026 F1 Race Winner & Podium Predictor")
 st.markdown("Predict race outcomes using 2026 exclusive form and grid data.")
 
-# Load Data
+# Load Data 
 @st.cache_data
 def load_data():
     df = pd.read_csv("f1_race_winners_data.csv")
@@ -267,4 +267,45 @@ st.dataframe(
     use_container_width=True
 )
 
+st.markdown("---")
+st.header("Driver Head to Head Comparison")
 
+col_a, col_b = st.columns(2)
+
+driver_list = results["FullName"].tolist()
+
+with col_a:
+    driver_1 = st.selectbox("Select Driver 2", driver_list, index=1)
+    data_1 = results[results["FullName"] == driver_1].iloc[0]
+    st.metric("f{driver_1} Win Prob", f"{data_1['Win_Probability_%']}%")
+    st.metric(f"{driver_1} Podium Prob", f"{data_1["'Podium_Probability_%"]}%")
+    st.write(f"**Starting Grid:** P{int(data_1['GridPosition'])}")
+
+with col_b:
+    driver_2 = st.selectbox("Select Driver 2", driver_list, index=1)
+    data_2 = results[results["FullName"] == driver_2].iloc[0]
+    st.metric(f"{driver_2} Win_Prob", f"{data_2['Win_Probability_%']}%")
+    st.metric(f"{driver_2} Podium Prob", f"{data_2['Podium_Probability_%']}%")
+    st.write(f"**Starting Grid:** P{int(data_2['GridPosition'])}")
+
+st.subheader("-- Constructor Win Odds Breakdown")
+
+# Group Win probabilities by Team,
+team_odds = (
+    results.groupby("TeamName")["Win_Probability_%"].sum().reset_index()
+)
+
+team_odds = team_odds.sort_values(by="Win_Probability_%", ascending=True)
+
+# Plot horizontal bar chart 
+fig_team = px.bar(
+    team_odds,
+    x="Win_Probability_%",
+    y="TeamName",
+    orientation="h",
+    color="TeamName",
+    color_discrete_map=team_colors,
+    text_auto=".1f",
+    title="Combined Constructor Probability of Winning"
+)
+st.plotly_chart(fig_team, use_container_width=True)
