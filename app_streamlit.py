@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
+import plotly.express as px
 from xgboost import XGBClassifier
 
 # Set page config for a clean dashboard look
@@ -40,7 +41,7 @@ grid_data = [
         "DriverNumber": 12,
     },
     {
-        "FullName": "George Russel",
+        "FullName": "George Russell",
         "TeamName": "Mercedes",
         "GridPosition": 2,
         "QualiPosition": 2,
@@ -77,13 +78,13 @@ grid_data = [
     {
         "FullName": "Oscar Piastri",
         "TeamName": "McLaren",
-        "GridPostion": 7,
+        "GridPosition": 7,
         "QualiPosition": 7,
         "DriverNumber": 81,
     },
     {
         "FullName": "Isack Hadjar",
-        "TeamName": "McLaren",
+        "TeamName": "Red Bull Racing",
         "GridPosition": 7,
         "QualiPosition": 7,
         "DriverNumber": 6,
@@ -158,7 +159,7 @@ df_encoded = pd.get_dummies(
 )
 
 categorical_cols = [
-    complex for col in df_encoded.columns
+    col for col in df_encoded.columns
     if col.startswith("TeamName_") or col.startswith("TrackType_")
 ]
 
@@ -199,6 +200,7 @@ podium_probs = (exp_podium / (exp_podium.sum() + 1e-9)) * 300
 
 # Results Preparation
 results = df_predict[is_baku_2026].copy()
+results["Podium_Probability_%"] = podium_probs.round(2)
 results["Win_Probability_%"] = win_probs.round(2)
 results["Implied_Odds"] = (100/ results["Win_Probability_%"]).round(2)
 results = results.sort_values(by="Win_Probability_%", ascending=False)
@@ -210,9 +212,21 @@ st.header(" Race Predictions & Analysis")
 col1, col2, col3 = st.columns(3)
 col1.metric("Favorite", results.iloc[0]["FullName"], f"{results.iloc[0]['Win_Probability_%']}% Win")
 col2.metric("2nd Favorite", results.iloc[1]["FullName"], f"{results.iloc[1]['Win_Probability_%']}% Win")
-col3.metric("3rd Favorite", results.iloc[2]["FullName"], f"{results/iloc[2]['Win_Probability_%']}% Win")
+col3.metric("3rd Favorite", results.iloc[2]["FullName"], f"{results.iloc[2]['Win_Probability_%']}% Win")
 
 st.markdown("---")
+
+team_colors = {
+    "Mercedes": "#00A198",
+    "Ferrari": "#E8002D",
+    "McLaren": "#FF8000",
+    "Red Bull Racing": "#3671C6",
+    "Racing Bulls": "#6692FF",
+    "Alpine": "#0093CC",
+    "Aston Martin": "#229971",
+    "Haas": "#B6BABD",
+    "Williams": "#64C4FF"
+}
 
 # Layout Plots in 2 columns
 plot_col1, plot_col2 = st.columns(2)
@@ -225,16 +239,32 @@ with plot_col1:
         x="GridPosition",
         y="Win_Probability_%",
         color="TeamName",
+        color_discrete_map=team_colors,
         hover_name="FullName",
         size="Podium_Probability_%",
         labels={"GridPosition": "Starting Grid Position", "Win_Probability_%": "Win Chance (%)"},
         title = "Impact of Starting Position on Win Chance"
     )
-    st.plotpy_chart(fig_scatter, use_container_width=True)
+    st.plotly_chart(fig_scatter, use_container_width=True)
 
 with plot_col2:
     st.subheader("Distribution of Win Probabilities")
     # Histogram
-    fig_hist = px.
+    fig_hist = px.histogram(
+        results,
+        x="Win_Probability_%",
+        nbins=10,
+        color="TeamName",
+        color_discrete_map=team_colors,
+        labels={"Win_Probability_%": "Win_Probability(%)"},
+        title="Field Spread of Win Probabilites"
+    )
+    st.plotly_chart(fig_hist, use_container_width=True)
+
+st.subheader("Full Prediction Table")
+st.dataframe(
+    results[["FullName", "TeamName", "GridPosition", "Win_Probability_%", "Podium_Probability_%", "Implied_Odds"]],
+    use_container_width=True
+)
 
 
