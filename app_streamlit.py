@@ -204,6 +204,7 @@ results["Podium_Probability_%"] = podium_probs.round(2)
 results["Win_Probability_%"] = win_probs.round(2)
 results["Implied_Odds"] = (100/ results["Win_Probability_%"]).round(2)
 results = results.sort_values(by="Win_Probability_%", ascending=False)
+results = results.sort_values(by="Win_Probability_%", ascending=False).reset_index(drop=True)
 
 # Visualizations
 st.header(" Race Predictions & Analysis")
@@ -275,10 +276,10 @@ col_a, col_b = st.columns(2)
 driver_list = results["FullName"].tolist()
 
 with col_a:
-    driver_1 = st.selectbox("Select Driver 2", driver_list, index=1)
+    driver_1 = st.selectbox("Select Driver 1", driver_list, index=1)
     data_1 = results[results["FullName"] == driver_1].iloc[0]
     st.metric("f{driver_1} Win Prob", f"{data_1['Win_Probability_%']}%")
-    st.metric(f"{driver_1} Podium Prob", f"{data_1["'Podium_Probability_%"]}%")
+    st.metric(f"{driver_1} Podium Prob", f"{data_1["Podium_Probability_%"]}%")
     st.write(f"**Starting Grid:** P{int(data_1['GridPosition'])}")
 
 with col_b:
