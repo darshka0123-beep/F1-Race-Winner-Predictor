@@ -6,3 +6,4 @@ Kimi Antonelli will most likely win.
 
 # How to use
 Open the link the view the app in streamlit. 
+https://darshka0123-beep-f1-race-winner-predictor-app-streamlit-o5ewtn.streamlit.app/
