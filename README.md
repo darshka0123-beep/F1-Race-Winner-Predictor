@@ -2,7 +2,7 @@
 As someone who likes f1 and someone who's learning more about data analysis, I thought it would be a perfect combination of interests. Based on data obtained from fastf1, I wanted to make predictions about who will win the upcoming race at Baku, Azerbaijan. 
 
 # Important Information
-I will update the quali results after Friday and the data will become more accurate.
+I will update the quali results after Friday and the data will become more accurate. The streamlit app takes a bit to load but it will load; there is no issues. I would recommend not reloading it constantly and just waiting for the page to reload.  
 
 # How to use
 Open the link the view the app in streamlit. 
