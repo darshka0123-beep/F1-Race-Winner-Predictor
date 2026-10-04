@@ -278,7 +278,7 @@ driver_list = results["FullName"].tolist()
 with col_a:
     driver_1 = st.selectbox("Select Driver 1", driver_list, index=1)
     data_1 = results[results["FullName"] == driver_1].iloc[0]
-    st.metric("f{driver_1} Win Prob", f"{data_1['Win_Probability_%']}%")
+    st.metric(f"{driver_1} Win Prob", f"{data_1['Win_Probability_%']}%")
     st.metric(f"{driver_1} Podium Prob", f"{data_1["Podium_Probability_%"]}%")
     st.write(f"**Starting Grid:** P{int(data_1['GridPosition'])}")
 
