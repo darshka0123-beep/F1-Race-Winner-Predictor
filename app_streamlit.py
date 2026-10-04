@@ -59,7 +59,7 @@ grid_data = [
         "TeamName": "McLaren",
         "GridPosition": 3,
         "QualiPosition": 3,
-        "DriverNumber": 44,
+        "DriverNumber": 4,
     },
     {
         "FullName": "Charles Leclerc",
@@ -203,11 +203,10 @@ results = df_predict[is_baku_2026].copy()
 results["Podium_Probability_%"] = podium_probs.round(2)
 results["Win_Probability_%"] = win_probs.round(2)
 results["Implied_Odds"] = (100/ results["Win_Probability_%"]).round(2)
-results = results.sort_values(by="Win_Probability_%", ascending=False)
 results = results.sort_values(by="Win_Probability_%", ascending=False).reset_index(drop=True)
 
 # Visualizations
-st.header(" Race Predictions & Analysis")
+st.header("Race Predictions & Analysis")
 
 # Top Metrics
 col1, col2, col3 = st.columns(3)
@@ -234,7 +233,6 @@ plot_col1, plot_col2 = st.columns(2)
 
 with plot_col1:
     st.subheader("Grid Position vs Win Probability")
-    # Scatter Plot
     fig_scatter = px.scatter(
         results,
         x="GridPosition",
@@ -244,13 +242,12 @@ with plot_col1:
         hover_name="FullName",
         size="Podium_Probability_%",
         labels={"GridPosition": "Starting Grid Position", "Win_Probability_%": "Win Chance (%)"},
-        title = "Impact of Starting Position on Win Chance"
+        title="Impact of Starting Position on Win Chance"
     )
     st.plotly_chart(fig_scatter, use_container_width=True)
 
 with plot_col2:
     st.subheader("Distribution of Win Probabilities")
-    # Histogram
     fig_hist = px.histogram(
         results,
         x="Win_Probability_%",
@@ -258,15 +255,9 @@ with plot_col2:
         color="TeamName",
         color_discrete_map=team_colors,
         labels={"Win_Probability_%": "Win_Probability(%)"},
-        title="Field Spread of Win Probabilites"
+        title="Field Spread of Win Probabilities"
     )
     st.plotly_chart(fig_hist, use_container_width=True)
-
-st.subheader("Full Prediction Table")
-st.dataframe(
-    results[["FullName", "TeamName", "GridPosition", "Win_Probability_%", "Podium_Probability_%", "Implied_Odds"]],
-    use_container_width=True
-)
 
 st.markdown("---")
 st.header("Driver Head to Head Comparison")
@@ -276,22 +267,23 @@ col_a, col_b = st.columns(2)
 driver_list = results["FullName"].tolist()
 
 with col_a:
-    driver_1 = st.selectbox("Select Driver 1", driver_list, index=1)
+    driver_1 = st.selectbox("Select Driver 1", driver_list, index=0)
     data_1 = results[results["FullName"] == driver_1].iloc[0]
     st.metric(f"{driver_1} Win Prob", f"{data_1['Win_Probability_%']}%")
-    st.metric(f"{driver_1} Podium Prob", f"{data_1["Podium_Probability_%"]}%")
+    st.metric(f"{driver_1} Podium Prob", f"{data_1['Podium_Probability_%']}%")
     st.write(f"**Starting Grid:** P{int(data_1['GridPosition'])}")
 
 with col_b:
-    driver_2 = st.selectbox("Select Driver 2", driver_list, index=1)
+    driver_2 = st.selectbox("Select Driver 2", driver_list, index=1 if len(driver_list) > 1 else 0)
     data_2 = results[results["FullName"] == driver_2].iloc[0]
-    st.metric(f"{driver_2} Win_Prob", f"{data_2['Win_Probability_%']}%")
+    st.metric(f"{driver_2} Win Prob", f"{data_2['Win_Probability_%']}%")
     st.metric(f"{driver_2} Podium Prob", f"{data_2['Podium_Probability_%']}%")
     st.write(f"**Starting Grid:** P{int(data_2['GridPosition'])}")
 
-st.subheader("-- Constructor Win Odds Breakdown")
+st.markdown("---")
+st.subheader("Constructor Win Odds Breakdown")
 
-# Group Win probabilities by Team,
+# Group Win probabilities by Team
 team_odds = (
     results.groupby("TeamName")["Win_Probability_%"].sum().reset_index()
 )
