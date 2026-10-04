@@ -14,7 +14,14 @@
 
       mount(
         {
-          requirements: ["streamlit", "numpy", "pandas", "plotly", "xgboost", "scikit-learn"],
+          requirements: [
+            "streamlit",
+            "numpy",
+            "pandas",
+            "plotly",
+            "xgboost",
+            "scikit-learn"
+          ],
           entrypoint: "app_streamlit.py",
           files: {
             "app_streamlit.py": {
